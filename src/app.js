@@ -1,34 +1,41 @@
-import dotenv from 'dotenv'
-import express from 'express'
-dotenv.config()
+
+require('dotenv').config()
 
 
 // database
-import connectDB from './db/connect.js'
+const connectDB = require('./db/connect.js')
 
 // error handler
-import notFoundMiddleware from './middleware/notFound.js'
-import errorHandlerMiddleware from './middleware/errorHandler.js'
-
+const notFoundMiddleware = require('./middleware/not-found.js')
+const errorHandlerMiddleware = require('./middleware/error-handler.js')
 
 // rest of packages
-import morgan from 'morgan'
+const express = require('express')
+const morgan = require('morgan')
+const helmet = require('helmet')
+const cors = require('cors')
 
+
+// express 
+const app = express()
 
 // middleware
+app.use(helmet())
+app.use(cors()) 
 app.use(morgan('tiny'))
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 // routes
 app.get('/',(req,res)=>{
-    res.send('API is running')
+    res.send('API is running')  
 })
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
-// express 
-const app = express()
+
+
 const port = process.env.PORT || 5000
 const start = async () =>{
     try {
