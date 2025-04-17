@@ -10,12 +10,8 @@ const register = async (userData) => {
   if (existingUser) {
     throw new CustomError.BadRequestError('Email already exists');
   }
-
-  // First registered user is an admin
-  const isFirstAccount = (await authRepository.findUserByEmail({})) === null;
-  const role = isFirstAccount ? 'admin' : 'user';
   
-  const user = await authRepository.createUser({ ...userData, role });
+  const user = await authRepository.createUser({ ...userData });
   const tokenUser = createTokenUser(user);
   
   return { user: tokenUser };
