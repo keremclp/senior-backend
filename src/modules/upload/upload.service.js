@@ -1,5 +1,7 @@
 const xlsx = require('xlsx');
 const uploadRepository = require('./upload.repository');
+const { uploadFileToS3, deleteFileFromS3 } = require('../../utils');
+const CustomError = require('../../errors');
 
 const processExcelFile = async (filePath) => {
   const workbook = xlsx.readFile(filePath);
@@ -9,6 +11,61 @@ const processExcelFile = async (filePath) => {
   return await uploadRepository.insertAdvisors(data);
 };
 
+const uploadResume = async (file, userId, title) => {
+  if (!file) {
+    throw new CustomError.BadRequestError('No file uploaded');
+  }
+  
+  // Check file type
+  if (!file.mimetype.includes('pdf') && !file.mimetype.includes('word')) {
+    throw new CustomError.BadRequestError('Only PDF and Word documents are allowed');
+  }
+  
+  try {
+    // Upload file to S3
+    const fileUrl = await uploadFileToS3(file, 'resumes');
+    
+    // Create resume record in database
+    const resumeData = {
+      title: title || file.originalname,
+      fileUrl,
+      fileType: file.mimetype,
+      user: userId
+    };
+    
+    const resume = await uploadRepository.createResume(resumeData);
+    return resume;
+  } catch (error) {
+    throw new CustomError.BadRequestError(`Resume upload failed: ${error.message}`);
+  }
+};
+
+const getUserResumes = async (userId) => {
+  return await uploadRepository.getResumesByUser(userId);
+};
+
+const deleteUserResume = async (resumeId, userId) => {
+  const resume = await uploadRepository.getResumeById(resumeId);
+  
+  if (!resume) {
+    throw new CustomError.NotFoundError('Resume not found');
+  }
+  
+  // Check if the resume belongs to the user
+  if (resume.user.toString() !== userId) {
+    throw new CustomError.UnauthorizedError('Not authorized to access this resume');
+  }
+  
+  // Delete file from S3
+  await deleteFileFromS3(resume.fileUrl);
+  
+  // Delete resume from database
+  return await uploadRepository.deleteResume(resumeId);
+};
+
 module.exports = {
-  processExcelFile
+  processExcelFile,
+  uploadResume,
+  getUserResumes,
+  deleteUserResume
 };
