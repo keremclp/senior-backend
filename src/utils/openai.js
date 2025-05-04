@@ -116,20 +116,20 @@ const analyzeResume = async (fileUrl) => {
  */
 const matchAdvisorsWithResume = async (resumeAnalysis) => {
   try {
-    // Extract relevant fields from resume using OpenAI
+    // Extract relevant fields from resume using OpenAI and translate to Turkish
     const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "You are a matching system that helps find advisors for students based on their resume. Process content in both Turkish and English languages. Return results as a valid JSON object with fields array."
+            content: "You are a matching system that helps find advisors for students based on their resume. You MUST return results in Turkish language since advisor tags in database are stored in Turkish."
           },
           {
             role: "user",
             content: `Find the most relevant fields of study based on this resume analysis: ${JSON.stringify(resumeAnalysis)}. 
-            The resume may be in Turkish or English. If it's in Turkish, identify Turkish technical terms and translate them to how they would appear in the advisor tags database, keeping proper nouns and internationally recognized technical terms in their original form.
-            Return a JSON object with a single 'fields' property containing an array of relevant fields and technologies for advisor matching. 
-            For example: {"fields": ["Artificial Intelligence", "Mobile Development", "Web Development", "Machine Learning", "Cloud Computing"]}`
+            IMPORTANT: Return field names in TURKISH language only, as our advisor tags database only contains Turkish terms.
+            For example, instead of "Artificial Intelligence", use "Yapay Zeka".
+            Return a JSON object with a single 'fields' property containing an array of relevant fields and technologies in Turkish.`
           }
         ],
         response_format: { type: "json_object" }
@@ -137,50 +137,22 @@ const matchAdvisorsWithResume = async (resumeAnalysis) => {
 
     const relevantFields = JSON.parse(response.choices[0].message.content);
     
-    // Flatten structure into a single array of strings
+    // Same processing logic as before
     let fieldsArray = [];
     
     if (relevantFields.fields) {
-      // If the AI returned the expected format
       fieldsArray = relevantFields.fields;
     } else if (relevantFields.fields_of_study || relevantFields.technologies) {
-      // If the AI returned separate arrays for fields_of_study and technologies
       fieldsArray = [
         ...(relevantFields.fields_of_study || []),
         ...(relevantFields.technologies || [])
       ];
     } else {
-      // Fallback in case of unexpected structure
       fieldsArray = Object.values(relevantFields).flat().filter(item => typeof item === 'string');
     }
     
-    console.log('Fields array for matching:', fieldsArray);
+    console.log('Fields array for matching (in Turkish):', fieldsArray);
     
-    // Query MongoDB for advisors with matching tags
-    // const advisors = await Advisor.find({
-    //   tags: { $in: fieldsArray }
-    // }).lean();
-    
-    // // Calculate matching score for each advisor
-    // const advisorsWithScores = advisors.map(advisor => {
-    //   // Count how many tags match
-    //   const matchingTags = advisor.tags.filter(tag => 
-    //     fieldsArray.includes(tag)
-    //   );
-      
-    //   // Calculate score as percentage of matching tags
-    //   const score = (matchingTags.length / fieldsArray.length) * 100;
-      
-    //   return {
-    //     ...advisor,
-    //     matchingScore: score.toFixed(1),
-    //     matchingTags
-    //   };
-    // });
-    
-    // // Sort by matching score (highest first)
-    // return advisorsWithScores.sort((a, b) => b.matchingScore - a.matchingScore);
-
     return { fields: fieldsArray };
     
   } catch (error) {
