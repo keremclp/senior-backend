@@ -37,6 +37,7 @@ const AdvisorSchema = new mongoose.Schema({
 });
 
 AdvisorSchema.index({ prefix: 1, name: 1 });
+AdvisorSchema.index({ tags: 1 });
 
 const Advisor = mongoose.model("Advisor", AdvisorSchema);
 

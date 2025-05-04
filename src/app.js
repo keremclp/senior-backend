@@ -18,7 +18,7 @@ const cookieParser = require('cookie-parser');
 // route files
 const authRoutes = require('./modules/auth/auth.routes');
 const uploadRoutes = require('./modules/upload/upload.routes'); // Added upload routes
-
+const matchingRoutes = require('./modules/matching/matching.routes');
 // express 
 const app = express()
 
@@ -38,6 +38,7 @@ app.get('/',(req,res)=>{
 // route mounting
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/upload', uploadRoutes); // Mount upload routes
+app.use('/api/v1/matching', matchingRoutes);
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
