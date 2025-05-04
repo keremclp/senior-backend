@@ -1,5 +1,5 @@
 const matchingRepository = require('./matching.repository');
-const { analyzeResume, matchAdvisorsWithResume } = require('../../utils/openai');
+const { analyzeResume, matchingFieldsFromResume } = require('../../utils/openai');
 const CustomError = require('../../errors');
 
 /**
@@ -11,7 +11,6 @@ const CustomError = require('../../errors');
 const findMatchingAdvisors = async (resumeId, userId) => {
   // Get the resume
   const resume = await matchingRepository.getResumeById(resumeId);
-  console.log(resume);
   
   if (!resume) {
     throw new CustomError.NotFoundError('Resume not found');
@@ -26,26 +25,21 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   const resumeAnalysis = await analyzeResume(resume.fileUrl);
   
   // Match the resume analysis with relevant fields
-  const matchingFields = await matchAdvisorsWithResume(resumeAnalysis);
+  const matchingFields = await matchingFieldsFromResume(resumeAnalysis);
 
-  console.log('Matching fields:', matchingFields);
-  
   // Find advisors with matching fields
   const advisors = await matchingRepository.findAdvisorsByFields(matchingFields.fields);
   // Calculate match scores for each advisor
   const matchingAdvisors = advisors.map(advisor => {
     // Calculate how many tags match with the relevant fields
     const matchingTags = advisor.tags.filter(tag => 
-      matchingFields.includes(tag)
+      matchingFields.fields.includes(tag)
     );
 
-    console.log('Matching tags:', matchingTags);
-    
-    const score = (matchingTags.length / matchingFields.length) * 100;
-    console.log('Match score:', score);
+    const score = (matchingTags.length / matchingFields.fields.length) * 100;
     return {
       advisor: {
-        id: advisor._id,
+        id: advisor.id,
         name: advisor.name,
         email: advisor.email,
         info: advisor.info,
@@ -57,12 +51,14 @@ const findMatchingAdvisors = async (resumeId, userId) => {
       matchingAreas: matchingTags
     };
   });
-  
+
   // Sort advisors by match score (highest first)
   matchingAdvisors.sort((a, b) => b.matchScore - a.matchScore);
-  
-  // Save match results
-  await matchingRepository.saveMatchResults(resumeId, userId, matchingAdvisors);
+
+  console.log('Matching advisors:', matchingAdvisors);
+
+  // TODO: Save match results
+  // await matchingRepository.saveMatchResults(resumeId, userId, matchingAdvisors);
   
   return {
     resumeTitle: resume.title,

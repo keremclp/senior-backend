@@ -15,15 +15,10 @@ const getResumeById = async (resumeId) => {
  * @param {Array} fields - Array of fields to match
  * @param {Number} limit - Maximum number of advisors to return
  */
-const findAdvisorsByFields = async (fields, limit = 20) => {
-
-  console.log('Inside findAdvisorsByFields:', fields);
-  
+const findAdvisorsByFields = async (fields) => {  
   const advisors = await Advisor.find({
     tags: { $in: fields }
-  }).limit(limit).exec();
-
-  console.log('Advisors found:', advisors);
+  });
   
   return advisors.map(advisor => ({
     id: advisor._id,

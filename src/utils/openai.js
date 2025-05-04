@@ -114,54 +114,51 @@ const analyzeResume = async (fileUrl) => {
  * @param {Object} resumeAnalysis - The analysis of the resume
  * @returns {Promise<Array>} - Matching advisors with scores
  */
-const matchAdvisorsWithResume = async (resumeAnalysis) => {
+const matchingFieldsFromResume = async (resumeAnalysis) => {
   try {
-    // Extract relevant fields from resume using OpenAI and translate to Turkish
+    const advisors = await Advisor.find({}, 'tags');
+    const allowedTags = [...new Set(advisors.flatMap(advisor => advisor.tags))];
+    console.log('Allowed tags:', allowedTags);
+    
     const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are a matching system that helps find advisors for students based on their resume. You MUST return results in Turkish language since advisor tags in database are stored in Turkish."
-          },
-          {
-            role: "user",
-            content: `Find the most relevant fields of study based on this resume analysis: ${JSON.stringify(resumeAnalysis)}. 
-            IMPORTANT: Return field names in TURKISH language only, as our advisor tags database only contains Turkish terms.
-            For example, instead of "Artificial Intelligence", use "Yapay Zeka".
-            Return a JSON object with a single 'fields' property containing an array of relevant fields and technologies in Turkish.`
-          }
-        ],
-        response_format: { type: "json_object" }
-      });
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `You are a system that extracts academic or technical field tags from resume analysis.Return only tags from the provided list. Do not create new ones or translate freely.`
+        },
+        {
+          role: "user",
+          content: `Based on the following resume analysis, extract the fields the student is working on. Only select items from the provided Turkish list below. Do not translate, do not create new fields, and do not modify the list. 
+                  Return a JSON object in the following format:
+                  { "fields": [ "Yapay Zeka", "Veri Tabanı", ... ] }
+
+                  List (in Turkish): ${JSON.stringify(allowedTags)}
+
+                  Resume Analysis: ${JSON.stringify(resumeAnalysis)}`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
 
     const relevantFields = JSON.parse(response.choices[0].message.content);
-    
-    // Same processing logic as before
-    let fieldsArray = [];
-    
-    if (relevantFields.fields) {
-      fieldsArray = relevantFields.fields;
-    } else if (relevantFields.fields_of_study || relevantFields.technologies) {
-      fieldsArray = [
-        ...(relevantFields.fields_of_study || []),
-        ...(relevantFields.technologies || [])
-      ];
-    } else {
-      fieldsArray = Object.values(relevantFields).flat().filter(item => typeof item === 'string');
-    }
-    
+
+    let fieldsArray = Array.isArray(relevantFields.fields)
+      ? relevantFields.fields
+      : [];
+
     console.log('Fields array for matching (in Turkish):', fieldsArray);
-    
+
     return { fields: fieldsArray };
-    
+
   } catch (error) {
     console.error('Error matching advisors:', error);
     throw new CustomError.BadRequestError(`Advisor matching failed: ${error.message}`);
   }
 };
 
+
 module.exports = {
   analyzeResume,
-  matchAdvisorsWithResume
+  matchingFieldsFromResume
 };
