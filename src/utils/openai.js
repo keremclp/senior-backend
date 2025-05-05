@@ -125,21 +125,33 @@ const matchingFieldsFromResume = async (resumeAnalysis) => {
       messages: [
         {
           role: "system",
-          content: `You are a system that extracts academic or technical field tags from resume analysis.Return only tags from the provided list. Do not create new ones or translate freely.`
+          content: `You are an expert system that matches resume content to academic and technical fields. Your task is to identify relevant fields from a provided list that match a student's resume. Be thorough but reasonable in your matching criteria.`
         },
         {
           role: "user",
-          content: `Based on the following resume analysis, extract the fields the student is working on. Only select items from the provided Turkish list below. Do not translate, do not create new fields, and do not modify the list. 
-                  Return a JSON object in the following format:
-                  { "fields": [ "Yapay Zeka", "Veri Tabanı", ... ] }
-
-                  List (in Turkish): ${JSON.stringify(allowedTags)}
-
-                  Resume Analysis: ${JSON.stringify(resumeAnalysis)}`
+          content: `Analyze this resume data and identify which academic/technical fields from the provided list best match the student's profile.
+        
+          INSTRUCTIONS:
+          1. ONLY select fields from the Turkish list provided
+          2. Consider ALL relevant information: skills, education, experience, projects, courses, and keywords
+          3. Use a balanced approach - match fields where there's reasonable evidence (not requiring extensive proof)
+          4. Match fields even if they appear just a few times if they're significant to the student's profile
+          5. Look for both direct matches AND related concepts (e.g., programming skills should match "Yazılım Geliştirme")
+          6. Be comprehensive - it's better to include slightly relevant fields than to miss important matches
+          
+          TURKISH FIELD LIST: ${JSON.stringify(allowedTags)}
+          
+          RESUME ANALYSIS: ${JSON.stringify(resumeAnalysis)}
+          
+          Return ONLY a JSON object with this exact format:
+          { "fields": ["Field1", "Field2", ...] }
+          
+          IMPORTANT: Return ALL relevant fields from the provided list, even if you're only moderately confident about the match.`
         }
       ],
       response_format: { type: "json_object" }
     });
+    console.log('OpenAI response:', response.choices[0].message.content);
 
     const relevantFields = JSON.parse(response.choices[0].message.content);
 

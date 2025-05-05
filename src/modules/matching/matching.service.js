@@ -27,6 +27,7 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   // Match the resume analysis with relevant fields
   const matchingFields = await matchingFieldsFromResume(resumeAnalysis);
 
+  console.log('Matching fields:', matchingFields.fields);
   // Find advisors with matching fields
   const advisors = await matchingRepository.findAdvisorsByFields(matchingFields.fields);
   // Calculate match scores for each advisor
@@ -36,7 +37,7 @@ const findMatchingAdvisors = async (resumeId, userId) => {
       matchingFields.fields.includes(tag)
     );
 
-    const score = (matchingTags.length / matchingFields.fields.length) * 100;
+    const score = (matchingTags.length / advisor.tags.length) * 100;
     return {
       advisor: {
         id: advisor.id,
