@@ -5,6 +5,17 @@ const insertAdvisors = async (data) => {
   return await Advisor.insertMany(data);
 };
 
+const updateAdvisorsWithUniversity = async (advisorUpdates) => {
+  const bulkOps = advisorUpdates.map(advisor => ({
+    updateOne: {
+      filter: { email: advisor.email },
+      update: { $set: { university: advisor.university } }
+    }
+  }));
+  
+  return await Advisor.bulkWrite(bulkOps);
+};
+
 const createResume = async (resumeData) => {
   return await Resume.create(resumeData);
 };
@@ -26,5 +37,6 @@ module.exports = {
   createResume,
   getResumesByUser,
   getResumeById,
-  deleteResume
+  deleteResume,
+  updateAdvisorsWithUniversity,
 };

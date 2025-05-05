@@ -11,6 +11,26 @@ const processExcelFile = async (filePath) => {
   return await uploadRepository.insertAdvisors(data);
 };
 
+const updateAdvisorsUniversity = async (filePath) => {
+  const workbook = xlsx.readFile(filePath);
+  const sheetName = workbook.SheetNames[0];
+  const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  
+  // Ensure data contains the needed fields
+  if (!data.length || !data[0].hasOwnProperty('email') || !data[0].hasOwnProperty('university')) {
+    throw new CustomError.BadRequestError('Excel file must contain email and university columns');
+  }
+  
+  // Map data to only include email and university fields
+  const advisorUpdates = data.map(row => ({
+    email: row.email,
+    university: row.university
+  }));
+  
+  const result = await uploadRepository.updateAdvisorsWithUniversity(advisorUpdates);
+  return result;
+};
+
 const uploadResume = async (file, userId, title) => {
   if (!file) {
     throw new CustomError.BadRequestError('No file uploaded');
@@ -67,5 +87,6 @@ module.exports = {
   processExcelFile,
   uploadResume,
   getUserResumes,
-  deleteUserResume
+  deleteUserResume,
+  updateAdvisorsUniversity,
 };

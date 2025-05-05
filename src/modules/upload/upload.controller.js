@@ -11,6 +11,19 @@ const uploadFile = async (req, res) => {
   }
 };
 
+const updateAdvisorsUniversity = async (req, res) => {
+  try {
+    const result = await uploadService.updateAdvisorsUniversity(req.file.path);
+    res.status(StatusCodes.OK).json({ 
+      message: 'Advisor universities updated successfully!',
+      modified: result.modifiedCount
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 const uploadResume = async (req, res) => {
   try {
     const resume = await uploadService.uploadResume(
@@ -44,5 +57,6 @@ module.exports = {
   uploadFile,
   uploadResume,
   getUserResumes,
-  deleteResume
+  deleteResume,
+  updateAdvisorsUniversity,
 };

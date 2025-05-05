@@ -39,6 +39,7 @@ const uploadResume = multer({
 
 // Admin routes for Excel imports
 router.post('/', uploadExcel.single('file'), uploadController.uploadFile);
+router.post('/update-universities', uploadExcel.single('file'), uploadController.updateAdvisorsUniversity);
 
 // Resume routes for users
 router.post('/resume', authenticateUser, uploadResume.single('resume'), uploadController.uploadResume);

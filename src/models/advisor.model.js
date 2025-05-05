@@ -34,6 +34,11 @@ const AdvisorSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please provide prefix"],
     },
+
+    university: {
+        type: String,
+        default: ""
+    }
 });
 
 AdvisorSchema.index({ prefix: 1, name: 1 });
