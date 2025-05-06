@@ -1,5 +1,6 @@
 const Advisor = require('../../models/advisor.model');
 const Resume = require('../../models/resume.model');
+const Match = require('../../models/match.model');
 const mongoose = require('mongoose');
 
 /**
@@ -21,7 +22,7 @@ const findAdvisorsByFields = async (fields) => {
   });
   
   return advisors.map(advisor => ({
-    id: advisor._id,
+    _id: advisor._id,
     name: advisor.name,
     email: advisor.email,
     info: advisor.info,
@@ -36,21 +37,53 @@ const findAdvisorsByFields = async (fields) => {
  * Save match results to the database
  * @param {string} resumeId - The resume ID
  * @param {string} userId - The user ID
- * @param {Array} advisors - Array of matching advisor IDs with scores
+ * @param {Array} advisors - Array of matching advisor objects with scores
+ * @returns {Promise<Object>} - The saved match document
  */
 const saveMatchResults = async (resumeId, userId, advisors) => {
-  // This would ideally be implemented with a new Match model
-  // For now, we'll return the data that would be saved
-  return {
+  // Transform advisors array to match the schema structure
+  const formattedAdvisors = advisors.map(formattedAdvisor => {
+    // Ensure we have a valid advisor ID
+    const advisorId = formattedAdvisor.advisor.id || formattedAdvisor.advisor._id;
+    
+    if (!advisorId) {
+      console.error('Missing advisor ID:', formattedAdvisor);
+      return null; // Will be filtered out below
+    }
+    
+    return {
+      advisor: advisorId, // Use the advisor ID as reference
+      matchScore: formattedAdvisor.matchScore || formattedAdvisor.score || 0,
+      matchingAreas: formattedAdvisor.matchingAreas || formattedAdvisor.tags || []
+    };
+  }).filter(item => item !== null); // Remove any null entries
+  
+  // Check if we have any valid advisors left
+  if (formattedAdvisors.length === 0) {
+    throw new Error('No valid advisors provided. Each advisor must have an id or _id field.');
+  }
+
+  const matchData = {
     resumeId,
     userId,
-    advisors,
-    timestamp: new Date()
+    advisors: formattedAdvisors
   };
+
+  const match = await Match.create(matchData);
+  return match;
 };
+
+async function getMatchResults(resumeId, userId) {
+  const match = await Match.findOne({ resumeId, userId }).populate('advisors.advisor');
+  if (!match) {
+    throw new Error('Match not found');
+  }
+  return match;
+}
 
 module.exports = {
   getResumeById,
   findAdvisorsByFields,
-  saveMatchResults
+  saveMatchResults,
+  getMatchResults
 };

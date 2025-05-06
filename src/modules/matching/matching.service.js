@@ -56,7 +56,7 @@ const findMatchingAdvisors = async (resumeId, userId) => {
     const score = (matchingTags.length / filteredAdvisor.tags.length) * 100;
     return {
       advisor: {
-        id: filteredAdvisor.id,
+        _id: filteredAdvisor._id,
         name: filteredAdvisor.name,
         email: filteredAdvisor.email,
         info: filteredAdvisor.info,
@@ -69,21 +69,31 @@ const findMatchingAdvisors = async (resumeId, userId) => {
     };
   });
 
-  // Sort advisors by match score (highest first)
   matchingAdvisors.sort((a, b) => b.matchScore - a.matchScore);
 
   console.log('Matching advisors:', matchingAdvisors);
 
   // TODO: Save match results
-  // await matchingRepository.saveMatchResults(resumeId, userId, matchingAdvisors);
+  await matchingRepository.saveMatchResults(resumeId, userId, matchingAdvisors);
   
   return {
     resumeTitle: resume.title,
-    analysisResults: resumeAnalysis,
-    matchingAdvisors
+    message:"Resume analysis completed successfully",
   };
 };
 
+async function getMatchedResults(resumeId, userId) {
+  // Get the match results from the database
+  const matchResults = await matchingRepository.getMatchResults(resumeId, userId);
+  
+  if (!matchResults) {
+    throw new CustomError.NotFoundError('No match results found for this resume');
+  }
+  
+  return matchResults;
+}
+
 module.exports = {
-  findMatchingAdvisors
+  findMatchingAdvisors,
+  getMatchedResults
 };
