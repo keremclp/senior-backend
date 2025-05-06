@@ -1,6 +1,7 @@
 const authRepository = require('./auth.repository');
 const { createTokenUser } = require('../../utils');
 const CustomError = require('../../errors');
+const { createJWT } = require('../../utils/jwt');
 
 const register = async (userData) => {
   const { email } = userData;
@@ -33,7 +34,9 @@ const login = async (email, password) => {
   }
   
   const tokenUser = createTokenUser(user);
-  return { user: tokenUser };
+  const token = createJWT({ tokenUser });
+  
+  return { user: tokenUser, token };
 };
 
 const forgotPassword = async (email) => {

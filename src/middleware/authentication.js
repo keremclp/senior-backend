@@ -2,7 +2,11 @@ const CustomError = require('../errors')
 const { isTokenValid } = require('../utils')
 
 const authenticateUser = async (req,res,next)=>{
-    const token = req.signedCookies.token 
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next(new AppError('Please log in to access this route', 401))
+    }
+    const token = authHeader.split(' ')[1]
     if(!token){
         throw new CustomError.UnauthenticatedError('Authentication Invalid')
     }

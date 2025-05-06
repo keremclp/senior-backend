@@ -6,20 +6,16 @@ const register = async (req, res) => {
   const { name, email, password } = req.body;
   
   const { user } = await authService.register({ name, email, password });
-  
-  attachCookiesToResponse({ res, tokenUser: user });
-  
+    
   res.status(StatusCodes.CREATED).json({ user });
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
   
-  const { user } = await authService.login(email, password);
+  const { user, token } = await authService.login(email, password);
   
-  attachCookiesToResponse({ res, tokenUser: user });
-  
-  res.status(StatusCodes.OK).json({ user });
+  res.status(StatusCodes.OK).json({ user, token });
 };
 
 const logout = async (req, res) => {
