@@ -31,9 +31,17 @@ const updateAdvisorsUniversity = async (filePath) => {
   return result;
 };
 
-const uploadResume = async (file, userId, title) => {
+const uploadResume = async (file, userId, title, university, engineeringField) => {
   if (!file) {
     throw new CustomError.BadRequestError('No file uploaded');
+  }
+  
+  if (!university) {
+    throw new CustomError.BadRequestError('University is required');
+  }
+  
+  if (!engineeringField) {
+    throw new CustomError.BadRequestError('Engineering field is required');
   }
   
   // Check file type
@@ -50,6 +58,8 @@ const uploadResume = async (file, userId, title) => {
       title: title || file.originalname,
       fileUrl,
       fileType: file.mimetype,
+      university,
+      engineeringField,
       user: userId
     };
     

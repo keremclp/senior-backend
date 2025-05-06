@@ -27,7 +27,8 @@ const findAdvisorsByFields = async (fields) => {
     info: advisor.info,
     secondInfo: advisor.secondInfo,
     prefix: advisor.prefix,
-    tags: advisor.tags
+    tags: advisor.tags,
+    university: advisor.university,
   })); 
 };
 

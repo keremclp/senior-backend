@@ -15,6 +15,14 @@ const ResumeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  university: {
+    type: String,
+    required: [true, "Please provide university"]
+  },
+  engineeringField: {
+    type: String,
+    required: [true, "Please provide engineering field"]
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

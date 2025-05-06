@@ -1,6 +1,8 @@
 const matchingRepository = require('./matching.repository');
 const { analyzeResume, matchingFieldsFromResume } = require('../../utils/openai');
 const CustomError = require('../../errors');
+const UNIVERSITIES = require('../../common/enums/university-names.enum');
+const ENGINEERING_DISCIPLINES = require('../../common/enums/second-info.enum');
 
 /**
  * Process a resume and find matching advisors
@@ -11,6 +13,7 @@ const CustomError = require('../../errors');
 const findMatchingAdvisors = async (resumeId, userId) => {
   // Get the resume
   const resume = await matchingRepository.getResumeById(resumeId);
+  console.log('Resume:', resume);
   
   if (!resume) {
     throw new CustomError.NotFoundError('Resume not found');
@@ -30,23 +33,36 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   console.log('Matching fields:', matchingFields.fields);
   // Find advisors with matching fields
   const advisors = await matchingRepository.findAdvisorsByFields(matchingFields.fields);
+  
+  // Get the display name of the university using the enum value
+  const universityDisplayName = UNIVERSITIES[resume.university] || resume.university;
+  const secondInfoDisplayName = ENGINEERING_DISCIPLINES[resume.engineeringField] || resume.engineeringField;
+
+  // Filter the advisors based on the university and secondInfo
+  const filteredAdvisors = advisors.filter(advisor => {
+    // More defensive comparison
+    const universityMatches = advisor.university === universityDisplayName;
+    const fieldMatches = advisor.secondInfo === secondInfoDisplayName;    
+    return universityMatches && fieldMatches;
+  });
+
   // Calculate match scores for each advisor
-  const matchingAdvisors = advisors.map(advisor => {
+  const matchingAdvisors = filteredAdvisors.map(filteredAdvisor => {
     // Calculate how many tags match with the relevant fields
-    const matchingTags = advisor.tags.filter(tag => 
+    const matchingTags = filteredAdvisor.tags.filter(tag => 
       matchingFields.fields.includes(tag)
     );
 
-    const score = (matchingTags.length / advisor.tags.length) * 100;
+    const score = (matchingTags.length / filteredAdvisor.tags.length) * 100;
     return {
       advisor: {
-        id: advisor.id,
-        name: advisor.name,
-        email: advisor.email,
-        info: advisor.info,
-        secondInfo: advisor.secondInfo,
-        prefix: advisor.prefix,
-        tags: advisor.tags
+        id: filteredAdvisor.id,
+        name: filteredAdvisor.name,
+        email: filteredAdvisor.email,
+        info: filteredAdvisor.info,
+        secondInfo: filteredAdvisor.secondInfo,
+        prefix: filteredAdvisor.prefix,
+        tags: filteredAdvisor.tags
       },
       matchScore: Math.round(score),
       matchingAreas: matchingTags

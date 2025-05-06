@@ -29,7 +29,9 @@ const uploadResume = async (req, res) => {
     const resume = await uploadService.uploadResume(
       req.file, 
       req.user.userId,
-      req.body.title
+      req.body.title,
+      req.body.university,
+      req.body.engineeringField
     );
     
     res.status(StatusCodes.CREATED).json({ 
