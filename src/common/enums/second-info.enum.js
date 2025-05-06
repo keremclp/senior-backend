@@ -1,0 +1,31 @@
+const ENGINEERING_DISCIPLINES = {
+  BIOMEDICAL_ENGINEERING: "Biyomedikal Mühendisliği",
+  SOFTWARE_ENGINEERING: "Yazılım Mühendisliği",
+  MECHANICAL_ENGINEERING: "Makine Mühendisliği",
+  EARTH_SCIENCES_ENGINEERING: "Yer Bilimleri ve Mühendisliği",
+  ELECTRICAL_ELECTRONICS_COMMUNICATION_ENGINEERING: "Elektrik-Elektronik ve Haberleşme Mühendisliği",
+  MECHATRONICS_ENGINEERING: "Mekatronik Mühendisliği",
+  ATMOSPHERIC_METEOROLOGY_ENGINEERING: "Atmosfer Bilimleri ve Meteoroloji Mühendisliği",
+  ELECTRICAL_ELECTRONICS_ENGINEERING: "Elektrik-Elektronik Mühendisliği",
+  NUCLEAR_ENGINEERING: "Nükleer Mühendisliği",
+  HEALTH_INFORMATICS: "Sağlık Bilişimi",
+  TEXTILE_SCIENCES_ENGINEERING: "Tekstil Bilimleri ve Mühendisliği",
+  MARINE_SHIP_ENGINEERING: "Deniz ve Gemi Mühendisliği",
+  AUTOMOTIVE_ENGINEERING: "Otomotiv Mühendisliği",
+  ENERGY_SYSTEMS_ENGINEERING: "Enerji Sistemleri Mühendisliği",
+  MAPPING_ENGINEERING: "Harita Mühendisliği",
+  ENVIRONMENTAL_SCIENCES_ENGINEERING: "Çevre Bilimleri ve Mühendisliği",
+  PETROLEUM_ENGINEERING: "Petrol Mühendisliği",
+  CIVIL_ENGINEERING: "İnşaat Mühendisliği",
+  MINING_ENGINEERING: "Maden Mühendisliği",
+  FOOD_SCIENCES_ENGINEERING: "Gıda Bilimleri ve Mühendisliği",
+  AEROSPACE_ENGINEERING: "Uçak-Havacılık-Uzay Mühendisliği",
+  BIOENGINEERING: "Biyomühendislik",
+  LOGISTICS_ENGINEERING: "Lojistik Mühendisliği",
+  CHEMICAL_ENGINEERING: "Kimya Mühendisliği",
+  MATERIALS_METALLURGY_ENGINEERING: "Malzeme ve Metalurji Mühendisliği",
+  COMPUTER_SCIENCE_ENGINEERING: "Bilgisayar Bilimleri ve Mühendisliği",
+  INDUSTRIAL_ENGINEERING: "Endüstri Mühendisliği"
+}
+
+module.exports = ENGINEERING_DISCIPLINES
