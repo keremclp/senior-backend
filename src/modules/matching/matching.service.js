@@ -14,10 +14,19 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   // Get the resume
   const resume = await matchingRepository.getResumeById(resumeId);
   console.log('Resume:', resume);
-  
+
   if (!resume) {
     throw new CustomError.NotFoundError('Resume not found');
   }
+
+  // check if the resume is already processed
+  const existingMatch = await matchingRepository.getMatchResults(resumeId, userId);
+  if (existingMatch) {
+    console.log('Existing match found:', existingMatch);
+    return {"message": "Resume already processed, please check your results"};
+  }
+
+
   
   // Check if the resume belongs to the user
   if (resume.user.toString() !== userId) {
