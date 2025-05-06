@@ -4,7 +4,7 @@ const { isTokenValid } = require('../utils')
 const authenticateUser = async (req,res,next)=>{
     const authHeader = req.headers.authorization
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(new AppError('Please log in to access this route', 401))
+      throw new CustomError.UnauthorizedError('Authentication Invalid')
     }
     const token = authHeader.split(' ')[1]
     if(!token){
