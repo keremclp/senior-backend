@@ -81,9 +81,18 @@ async function getMatchResults(resumeId, userId) {
   return match;
 }
 
+async function deleteMatchResults(resumeId, userId) {
+  const result = await Match.deleteMany({ resumeId, userId });
+  if (result.deletedCount === 0) {
+    throw new Error('No match results found to delete');
+  }
+  return result;
+}
+
 module.exports = {
   getResumeById,
   findAdvisorsByFields,
   saveMatchResults,
-  getMatchResults
+  getMatchResults,
+  deleteMatchResults
 };

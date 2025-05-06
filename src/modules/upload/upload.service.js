@@ -2,6 +2,7 @@ const xlsx = require('xlsx');
 const uploadRepository = require('./upload.repository');
 const { uploadFileToS3, deleteFileFromS3 } = require('../../utils');
 const CustomError = require('../../errors');
+const matchingRepository = require('../matching/matching.repository');
 
 const processExcelFile = async (filePath) => {
   const workbook = xlsx.readFile(filePath);
@@ -88,6 +89,9 @@ const deleteUserResume = async (resumeId, userId) => {
   
   // Delete file from S3
   await deleteFileFromS3(resume.fileUrl);
+
+  // delete matching results from the database
+  await matchingRepository.deleteMatchResults(resumeId, userId);
   
   // Delete resume from database
   return await uploadRepository.deleteResume(resumeId);

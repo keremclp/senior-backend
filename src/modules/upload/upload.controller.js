@@ -50,7 +50,7 @@ const getUserResumes = async (req, res) => {
 };
 
 const deleteResume = async (req, res) => {
-  const { id: resumeId } = req.params;
+  const { resumeId: resumeId } = req.body;
   await uploadService.deleteUserResume(resumeId, req.user.userId);
   res.status(StatusCodes.OK).json({ message: 'Resume deleted successfully!' });
 };
