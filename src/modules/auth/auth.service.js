@@ -33,10 +33,12 @@ const login = async (email, password) => {
     throw new CustomError.UnauthenticatedError('Invalid credentials');
   }
   
+  delete user.password
   const tokenUser = createTokenUser(user);
-  const token = createJWT({ tokenUser });
+
+  const token = createJWT({ tokenUser, userId: user._id });
   
-  return { user: tokenUser, token };
+  return { tokenUser, token };
 };
 
 const forgotPassword = async (email) => {
