@@ -33,12 +33,17 @@ const login = async (email, password) => {
     throw new CustomError.UnauthenticatedError('Invalid credentials');
   }
   
-  delete user.password
+   // Convert to plain JavaScript object first
+   const userObj = user.toObject ? user.toObject() : { ...user };
+  
+   // Delete password from the plain object
+   delete userObj.password;
+  
   const tokenUser = createTokenUser(user);
 
   const token = createJWT({ tokenUser, userId: user._id });
   
-  return { tokenUser, token };
+  return { user:userObj, token };
 };
 
 const forgotPassword = async (email) => {
