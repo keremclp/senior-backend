@@ -23,7 +23,12 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   const existingMatch = await matchingRepository.getMatchResults(resumeId, userId);
   if (existingMatch) {
     console.log('Existing match found:', existingMatch);
-    return {"message": "Resume already processed, please check your results"};
+    return {
+      message: "Resume already processed, please check your results",
+      success: true,
+      matchId: existingMatch._id,
+      alreadyProcessed: true
+    };
   }
 
 
@@ -87,7 +92,9 @@ const findMatchingAdvisors = async (resumeId, userId) => {
   
   return {
     resumeTitle: resume.title,
-    message:"Resume analysis completed successfully",
+    message: "Resume analysis completed successfully",
+    success: true,
+    matchId: existingMatch ? existingMatch._id : undefined
   };
 };
 
