@@ -75,9 +75,6 @@ const saveMatchResults = async (resumeId, userId, advisors) => {
 
 async function getMatchResults(resumeId, userId) {
   const match = await Match.findOne({ resumeId, userId }).populate('advisors.advisor');
-  if (!match) {
-    throw new Error('Match not found');
-  }
   return match;
 }
 

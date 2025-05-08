@@ -37,17 +37,33 @@ const uploadFileToS3 = async (file, folder = 'resumes') => {
 
 const deleteFileFromS3 = async (fileUrl) => {
   try {
-    const key = fileUrl.split('/').slice(3).join('/');
+    // Parse URL to get the correct object key
+    const urlObj = new URL(fileUrl);
+    const pathParts = urlObj.pathname.split('/');
+    
+    // Get the actual path without leading slash but preserve the folder structure
+    // This will ensure we get: "resumes/filename.pdf"
+    const key = pathParts.filter(part => part).join('/');
+    
+    console.log('S3 deletion - fileUrl:', fileUrl);
+    console.log('S3 deletion - extracted key:', key);
+    console.log('S3 deletion - bucket name:', process.env.S3_BUCKET_NAME);
     
     const params = {
       Bucket: process.env.S3_BUCKET_NAME,
       Key: key
     };
     
-    await s3.deleteObject(params).promise();
+    const result = await s3.deleteObject(params).promise();
+    console.log('S3 deletion result:', result);
+    console.log('Successfully deleted file from S3:', key);
+    
+    return result;
   } catch (error) {
     console.error('Error deleting from S3:', error);
-    throw new CustomError.BadRequestError('File deletion from S3 failed');
+    console.error('Attempted URL:', fileUrl);
+    console.error('AWS SDK version:', AWS.VERSION);
+    throw new CustomError.BadRequestError(`File deletion from S3 failed: ${error.message}`);
   }
 };
 
