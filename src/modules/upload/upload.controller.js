@@ -55,10 +55,20 @@ const deleteResume = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'Resume deleted successfully!' });
 };
 
+const getResume = async (req, res) => {
+  const { resumeId } = req.query;
+  const resume = await uploadService.getResume(resumeId);
+  if (!resume) {
+    return res.status(StatusCodes.NOT_FOUND).json({ message: 'Resume not found!' });
+  }
+  res.status(StatusCodes.OK).json({ resume });
+};
+
 module.exports = {
   uploadFile,
   uploadResume,
   getUserResumes,
   deleteResume,
   updateAdvisorsUniversity,
+  getResume,
 };

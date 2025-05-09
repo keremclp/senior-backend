@@ -102,10 +102,20 @@ const deleteUserResume = async (resumeId, userId) => {
   return await uploadRepository.deleteResume(resumeId);
 };
 
+const getResume = async (resumeId) => {
+  const resume = await uploadRepository.getResumeById(resumeId);
+  if (!resume) {
+    throw new CustomError.NotFoundError('Resume not found');
+  }
+  return resume;
+}
+
+
 module.exports = {
   processExcelFile,
   uploadResume,
   getUserResumes,
   deleteUserResume,
   updateAdvisorsUniversity,
+  getResume,
 };

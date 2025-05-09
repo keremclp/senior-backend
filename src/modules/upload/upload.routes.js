@@ -43,6 +43,8 @@ router.post('/update-universities', uploadExcel.single('file'), uploadController
 
 // Resume routes for users
 router.post('/resume', authenticateUser, uploadResume.single('resume'), uploadController.uploadResume);
+// get single resume
+router.get('/resume', authenticateUser, uploadController.getResume);
 router.get('/resumes', authenticateUser, uploadController.getUserResumes);
 router.post('/delete-resume', authenticateUser, uploadController.deleteResume);
 
