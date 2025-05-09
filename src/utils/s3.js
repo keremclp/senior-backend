@@ -43,7 +43,10 @@ const deleteFileFromS3 = async (fileUrl) => {
     
     // Get the actual path without leading slash but preserve the folder structure
     // This will ensure we get: "resumes/filename.pdf"
-    const key = pathParts.filter(part => part).join('/');
+    let key = pathParts.filter(part => part).join('/');
+
+    // Decode the URL-encoded characters (may need to do this twice for double-encoded characters)
+    key = decodeURIComponent(key);
     
     const params = {
       Bucket: process.env.S3_BUCKET_NAME,
@@ -54,6 +57,7 @@ const deleteFileFromS3 = async (fileUrl) => {
     
     return result;
   } catch (error) {
+    console.error('Error deleting from S3:', error);
     throw new CustomError.BadRequestError(`File deletion from S3 failed: ${error.message}`);
   }
 };
