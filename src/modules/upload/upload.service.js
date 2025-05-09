@@ -94,9 +94,8 @@ const deleteUserResume = async (resumeId, userId) => {
   // we need to get matching results for this resumeId and userId
   // and delete them from the database
   const matchingResults = await matchingRepository.getMatchResults(resumeId, userId);
-  
-  if (matchingResults && matchingResults.length > 0) {
-    await matchingRepository.deleteMatchResults(matchingResults.map(result => result._id));
+  if (matchingResults && matchingResults.advisors.length > 0) {
+    await matchingRepository.deleteMatchResults(resumeId, userId);
   }
   
   // Delete resume from database
