@@ -96,10 +96,25 @@ const downloadFileFromS3 = async (fileUrl) => {
   }
 };
 
-
+const getSignedUrl = async (key) => {
+  const params = {
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: key,
+    Expires: 3600 // URL expires in 1 hour
+  };
+  
+  try {
+    const url = await s3.getSignedUrlPromise('getObject', params);
+    return url;
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    throw error;
+  }
+};
 
 module.exports = {
   uploadFileToS3,
   deleteFileFromS3,
-  downloadFileFromS3
+  downloadFileFromS3,
+  getSignedUrl
 };
