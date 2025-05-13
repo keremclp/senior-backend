@@ -28,6 +28,11 @@ const UserSchema = new mongoose.Schema({
     enum: ["user", "advisor"],
     default: "user",
   },
+  profileImageUrl: {
+    type: String,
+    default: ''
+  },
+  
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });
