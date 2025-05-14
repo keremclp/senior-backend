@@ -55,7 +55,6 @@ const uploadProfileImage = async (userId, file) => {
   if (user.profileImageUrl && user.profileImageUrl !== '') {
     console.log('Deleting old profile image:', user.profileImageUrl);
     try {
-      // If storing keys, just pass the key directly
       await deleteFileFromS3(user.profileImageUrl);
     } catch (error) {
       console.error('Error deleting old profile image:', error);
@@ -65,18 +64,18 @@ const uploadProfileImage = async (userId, file) => {
   // Upload new image to S3
   const uploadResult = await uploadFileToS3(file, 'profiles-images');
   
-  // Use the key directly from the upload result
+  // Get the key from the upload result
   const key = uploadResult.Key;
   console.log('Using key directly from upload:', key);
   
   // Store the KEY in the database, not the signed URL
+  const updatedUser = await userRepository.updateUser(userId, { profileImageUrl: key });
   
-  // Generate a signed URL for the response
+  // Generate a signed URL just for the response
   const signedUrl = await getSignedUrl(key);
   console.log('Generated signed URL:', signedUrl);
   
-  const updatedUser = await userRepository.updateUser(userId, { profileImageUrl: signedUrl });
-  // Return the user with a valid signed URL for immediate use
+  // Return the user with the key in the database but a valid signed URL for immediate use
   return {
     ...updatedUser.toObject ? updatedUser.toObject() : updatedUser,
     profileImageUrl: signedUrl
