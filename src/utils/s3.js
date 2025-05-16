@@ -29,27 +29,25 @@ const uploadFileToS3 = async (file, folder = 'resumes') => {
     fs.unlinkSync(file.path);
     
     // Return both the location and key for flexibility
-    return {
-      Location: uploaded.Location,
-      Key: fileName
-    };
+    return uploaded.Location; 
   } catch (error) {
     console.error('Error uploading to S3:', error);
     throw new CustomError.BadRequestError('File upload to S3 failed');
   }
 };
 
-const deleteFileFromS3 = async (fileKey) => {
+const deleteFileFromS3 = async (fileUrl) => {
   try {
-    let key = fileKey;
-    
-    // If it's a URL, parse it to get the key
-    if (fileKey.startsWith('http')) {
-      const urlObj = new URL(fileKey);
-      const pathParts = urlObj.pathname.split('/');
-      key = pathParts.filter(part => part).join('/');
-      key = decodeURIComponent(key);
-    }
+    // Parse URL to get the correct object key
+    const urlObj = new URL(fileUrl);
+    const pathParts = urlObj.pathname.split('/');
+
+    // Get the actual path without leading slash but preserve the folder structure
+    // This will ensure we get: "resumes/filename.pdf"
+    let key = pathParts.filter(part => part).join('/');
+
+    // Decode the URL-encoded characters (may need to do this twice for double-encoded characters)
+    key = decodeURIComponent(key);
     
     const params = {
       Bucket: process.env.S3_BUCKET_NAME,

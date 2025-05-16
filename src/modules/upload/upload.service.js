@@ -77,6 +77,7 @@ const getUserResumes = async (userId) => {
 
 const deleteUserResume = async (resumeId, userId) => {
   const resume = await uploadRepository.getResumeById(resumeId);
+  console.log("Resume to delete:", resume);
   
   if (!resume) {
     throw new CustomError.NotFoundError('Resume not found');

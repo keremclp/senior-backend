@@ -25,6 +25,7 @@ const updateAdvisorsUniversity = async (req, res) => {
 };
 
 const uploadResume = async (req, res) => {
+  console.log("Uploading resume:", req.file);
   try {
     const resume = await uploadService.uploadResume(
       req.file, 
